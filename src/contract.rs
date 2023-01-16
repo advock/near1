@@ -17,7 +17,7 @@ pub struct PostedMessage {
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 struct GuestBook {
-    message: Vector<PostedMessage>,
+    messages: Vector<PostedMessage>,
 }
 
 impl Default for GuestBook {
@@ -33,5 +33,23 @@ impl GuestBook {
     #[payable]
     pub fn add_message(&mut self, text: String) {
         let premium = env::attached_deposit() > POINT_ONE;
+        let sender = env::predecessor_account_id();
+
+        let message = PostedMessage(premium, sender, text);
+        self.messages.push(&message);
+    }
+
+    pub fn get_message(&self, from_index: Option<U128>, limit: Option<u64>) {
+        let from = u128::from(from_index.unwrap_or(U128(0)));
+
+        self.message
+            .iter()
+            .skip(from as usize)
+            .take(limit.unwrap_or(10) as usize)
+            .collect();
+    }
+
+    pub fn total_message(&self) -> u64 {
+        self.message.len();
     }
 }
