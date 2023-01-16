@@ -16,8 +16,22 @@ pub struct PostedMessage {
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
-struct questBook {
+struct GuestBook {
     message: Vector<PostedMessage>,
 }
 
-impl Default for questBook {}
+impl Default for GuestBook {
+    fn default() -> Self {
+        Self {
+            message: Vector::new(b"m"),
+        }
+    }
+}
+
+#[near_bindgen]
+impl GuestBook {
+    #[payable]
+    pub fn add_message(&mut self, text: String) {
+        let premium = env::attached_deposit() > POINT_ONE;
+    }
+}
